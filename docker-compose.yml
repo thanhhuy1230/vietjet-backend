@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # Dùng PostgreSQL trên máy bạn (vietjet_booking). Đổi mật khẩu cho đúng.
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:MAT_KHAU_POSTGRES@host.docker.internal:5432/vietjet_booking}
+      JWT_SECRET: change-this-before-public-deployment-123456789
+      JWT_EXPIRES_IN: 2h
+      CORS_ORIGINS: http://localhost:3000,http://localhost:8081,http://localhost:19006,http://localhost:8090,http://192.168.1.5:3000,http://192.168.1.5:8081,http://192.168.1.5:19006,http://192.168.1.5:8090
+      WEB_URL: ${WEB_URL:-http://192.168.1.5:8081}
+      DB_SSL: "false"
+      OTP_DELIVERY: ${OTP_DELIVERY:-sms}
+      # Khoá SMS lấy từ backend/.env (được copy vào image); muốn ghi đè thì đặt biến môi trường cùng tên.
+      SMS_PROVIDER: ${SMS_PROVIDER:-speedsms,esms}
+      CORS_ALLOW_LOCAL: "true"
+      CANCEL_MIN_DAYS: "2"
+      ALLOW_DEMO_PAYMENT: "true"
+      # --- VNPAY sandbox (nếu thiếu các biến này backend trả 503 VNPAY_NOT_CONFIGURED) ---
+      VNPAY_PAYMENT_URL: ${VNPAY_PAYMENT_URL:-https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+      VNPAY_RETURN_URL: ${VNPAY_RETURN_URL:-}
+      VNPAY_HASH_SECRET: ${VNPAY_HASH_SECRET:-PHWALIJXVDGZUWVUWKDWNIVMBFYYNJJP}
+      VNPAY_BRAND_CODE: ${VNPAY_BRAND_CODE:-QA91LHJY}
+      VNPAY_VERSION: ${VNPAY_VERSION:-2.1.0}
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
